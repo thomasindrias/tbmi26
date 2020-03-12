@@ -1,4 +1,4 @@
-function epsilon = getepsilon(episode, maxEpisodes)
+function epsilon = getepsilon(epsilon, episode, maxEpisodes)
 % GETEPSILON returns epsilon (exploration factor) given several parameters,
 % e.g. the current and total number of episodes. You may choose not to use
 % this function but it might be helpful if you would like to plot how
@@ -7,7 +7,9 @@ function epsilon = getepsilon(episode, maxEpisodes)
 % episode and maxEpisodes are hints that these parameters might be good to
 % use when defining epsilon.
 
+epsilon_update = (epsilon - 0.1)/maxEpisodes;
 
+epsilon = epsilon - episode*epsilon_update;
 
 end
 
