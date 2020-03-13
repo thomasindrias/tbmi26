@@ -2,10 +2,11 @@
 %  Initialize the world, Q-table, and hyperparameters
 
 %What world to explore
-world = 1;
+world = 5;
 
 %Initialize world
 s = gwinit(world);
+gwdraw()
 
 %Actions to take, represents down up right and left
 actions = [1,2,3,4];
@@ -22,7 +23,7 @@ gamma = 0.9; % Discount factor
 epsilon = 0.9; % Exploration factor
 
 %Nr of episodes
-episodes = 500;
+episodes = 5000;
 
 %Greedy exploration till epsilon reaches 0.1
 epsilon_update = (epsilon - 0.1)/episodes;
@@ -41,8 +42,8 @@ for episode=1:episodes
         
         if s_next.isvalid == 1
             r = s_next.feedback;
-            V = getvalue(Q(s_next.pos(1), s_next.pos(2), :));
-            Q(s.pos(1), s.pos(2), action)  = (1-eta)*Q(s.pos(1), s.pos(2), action) + eta*(r + gamma*V);
+            V = getvalue(Q);
+            Q(s.pos(1), s.pos(2), action)  = (1-eta)*Q(s.pos(1), s.pos(2), action) + eta*(r + gamma*V(s_next.pos(1), s_next.pos(2)));
             s = s_next;
         else %Penalty
             Q(s.pos(1), s.pos(2), action) = -inf;
@@ -75,8 +76,10 @@ s = gwinit(world);
 gwdraw();
 n_actions = 0;
 
+P = getpolicy(Q);
+
 while s.isterminal == 0
-    [action, opt_action] = chooseaction(Q, s.pos(1), s.pos(2), actions, prob_a, 0);
+    action = P(s.pos(1), s.pos(2));
     
     s_next = gwaction(action);
     s = s_next;
