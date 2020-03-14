@@ -23,7 +23,7 @@ gamma = 0.9; % Discount factor
 epsilon = 0.9; % Exploration factor
 
 %Nr of episodes
-episodes = 1000;
+episodes = 5000;
 
 %Greedy exploration till epsilon reaches 0.1
 epsilon_update = (epsilon - 0.1)/episodes;
@@ -52,11 +52,23 @@ for episode=1:episodes
         if s_next.isvalid == 1
             r = s_next.feedback;
             V = getvalue(Q);
-            gwstate()
             Q(s.pos(1), s.pos(2), action)  = (1-eta)*Q(s.pos(1), s.pos(2), action) + eta*(r + gamma*V(s_next.pos(1), s_next.pos(2)));
             s = s_next;
         else %Penalty
-            Q(s.pos(1), s.pos(2), action) = -inf;
+            diff_pos = [(action==1) - (action==2); (action==3) - (action==4)];
+            next_pos = s.pos + diff_pos;
+            
+            %Check if wanted position
+            if next_pos ~= s_next.pos
+                %Give a superbad reward
+                Q(s.pos(1), s.pos(2), action) = -inf;
+            else
+                %Give a bad reward
+                r = s.feedback;
+                V = getvalue(Q);
+                Q(s.pos(1), s.pos(2), action)  = (1-eta)*Q(s.pos(1), s.pos(2), action) + eta*(r + gamma*V(s.pos(1), s.pos(2)));
+                
+            end
         end
     end
     
