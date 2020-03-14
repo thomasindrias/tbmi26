@@ -2,7 +2,7 @@
 %  Initialize the world, Q-table, and hyperparameters
 
 %What world to explore
-world = 5;
+world = 4;
 
 %Initialize world
 s = gwinit(world);
@@ -23,7 +23,7 @@ gamma = 0.9; % Discount factor
 epsilon = 0.9; % Exploration factor
 
 %Nr of episodes
-episodes = 5000;
+episodes = 1000;
 
 %Greedy exploration till epsilon reaches 0.1
 epsilon_update = (epsilon - 0.1)/episodes;
@@ -40,9 +40,19 @@ for episode=1:episodes
         [action, opt_action] = chooseaction(Q, s.pos(1), s.pos(2), actions, prob_a, epsilon);
         s_next = gwaction(action);
         
+        %Check if action is wanted
+        %diff_pos = [(action==1) - (action==2); (action==3) - (action==4)];
+        %next_pos = s.pos + diff_pos;
+        
+        %if next_pos ~= s_next.pos
+        %    s = s_next;
+        %    continue;
+        %end
+        
         if s_next.isvalid == 1
             r = s_next.feedback;
             V = getvalue(Q);
+            gwstate()
             Q(s.pos(1), s.pos(2), action)  = (1-eta)*Q(s.pos(1), s.pos(2), action) + eta*(r + gamma*V(s_next.pos(1), s_next.pos(2)));
             s = s_next;
         else %Penalty
@@ -73,10 +83,18 @@ imagesc(Q(:,:,4))
 %  Also, you should not explore when testing, i.e. epsilon=0; always pick
 %  the optimal action.
 s = gwinit(world);
-gwdraw();
+
 n_actions = 0;
 
 P = getpolicy(Q);
+V = getvalue(Q);
+
+figure(1)
+gwdraw()
+gwdrawpolicy(P)
+
+figure(2)
+imagesc(V)
 
 while s.isterminal == 0
     action = P(s.pos(1), s.pos(2));
@@ -85,4 +103,4 @@ while s.isterminal == 0
     s = s_next;
     n_actions = n_actions + 1;
 end
-gwdraw();
+
